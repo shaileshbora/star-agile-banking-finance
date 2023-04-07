@@ -22,14 +22,14 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 sh'sudo docker system prune -af '
-                sh 'sudo docker build -t shaileshbora/finance_me_project:1.0 .'
+                sh 'sudo docker build -t shaileshbora/finance_me_project:latest .'
                 }
             }
         stage ('Push Image to DockerHub') {
             steps {
                 withCredentials([usernamePassword(credentialsId: 'docker-hub', passwordVariable: 'dockerHubPassword', usernameVariable: 'dockerHubUser')]) {
                 sh "sudo docker login -u ${env.dockerHubUser} -p ${env.dockerHubPassword}"
-                sh 'sudo docker push shaileshbora/finance_me_project:1.0'
+                sh 'sudo docker push shaileshbora/finance_me_project:latest'
                 }
             }
         }
@@ -43,26 +43,5 @@ pipeline {
                 }
             }
         }
-        stage ('Waiting for Application to Start') {
-            steps {
-                sh ' sleep 40'
-                }
-        }
-        stage ('Selenium Testing') {
-            steps {
-                 sh 'sudo java -jar seleniumbank.jar'
-                 sh "echo 'Application is logged in Succussfully' "
-                 }
-        }
-        stage ('Setting up Prod-Server with Terraform and Ansible'){
-            steps{
-                dir('prod-server'){
-                sh 'chmod 600 project.pem'
-                sh'terraform init'
-                sh'terraform validate'
-                sh'terraform apply --auto-approve'
-                }
-             }
-         }
      }
 }
